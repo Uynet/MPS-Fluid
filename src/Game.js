@@ -15,8 +15,8 @@ export default class Game{
     //何で2倍になってんの??
     document.onclick = (e)=>{
       let p = {
-        x : (e.clientX - 256)/2,
-        y : (e.clientY-8)/2,
+        x : (e.clientX - 256),
+        y : (e.clientY-8),
       }
       let pa = new Particle(p);
       EntityManager.Add(pa);
