@@ -9,7 +9,7 @@ export default class Input{
   }
 }
 
-(document).on("keydown",(e)=> {
+$(document).on("keydown",(e)=> {
   inputedKeyList[event.keyCode] = true;
   event.preventDefault();
 });
