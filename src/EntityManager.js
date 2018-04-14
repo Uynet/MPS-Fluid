@@ -23,7 +23,6 @@ export default class EntityManager{
         EntityManager.Add(pa);
       }
     }
-
     //各粒子の粒子数密度とその最大値を求める
     let ns = [];//粒子数密度の配列
     for(let p of this.particleList){
@@ -31,8 +30,6 @@ export default class EntityManager{
       ns.push(p.n);
     }
     env.n0 = ns.reduce((a,c)=>(a>c)?a:c);
-
-
     //各粒子のλとその最大値を求める
     let ls = [];//λの配列
     for(let p of this.particleList){
@@ -40,6 +37,15 @@ export default class EntityManager{
     }
     env.lambda = ls.reduce((a,c)=>(a>c)?a:c);
 
+
+    let A = [
+      [3,2,1],
+      [1,4,1],
+      [2,2,5],
+    ];
+    let b = [10,12,21];
+
+    cl(Calc.GaussSeidel(A,b));
 
     //壁の初期配置
     for(let j=0;j<24;j++){

@@ -4,10 +4,13 @@ export default class Calc{
   static Init(){
     //係数行列
     this.A = new Array(40);
-      for(let i=0;i<40;i++){
-        this.A[i] = new Array(40).fill(0);
-      }
-    cl(this.A);
+    for(let i=0;i<40;i++){
+      this.A[i] = new Array(40).fill(0);
+    }
+    this.b = [];
+    for(let i = 0;i<40;i++){
+      this.b.push(i);
+    }
   }
   static Weight(r){
     return Math.max(0,env.re/r - 1);
@@ -93,5 +96,19 @@ export default class Calc{
   }
   //Ax=bを満たすxの近似解
   static GaussSeidel(A,b){
+    let length = 3;
+    let x = new Array(length).fill(0);
+    for(let po = 0;po<6;po++){
+      for(let i = 0;i<length;i++){
+        let next = b[i];
+        for(let j = 0;j<length;j++){
+          if(i==j)continue;
+          next -= A[i][j]*x[j];
+        }
+        next/= A[i][i];
+        x[i]=next;
+      }
+    }
+    return x;
   }
 }
