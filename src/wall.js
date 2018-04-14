@@ -10,12 +10,18 @@ export default class Wall{
     this.type = "wall";
     this.size = 15;
 
+
+
     this.graphics = new PIXI.Graphics();
-    this.graphics.beginFill(0x444455,0.6);
+    this.graphics.beginFill(0x000020,0.6);
     this.graphics.drawRect(0,0,this.size,this.size);//x,y,width,height
+    this.graphics.alpha = 0.5 + this.pos.y/500;
   }
   Update(){
     this.pos = ADV(this.pos,this.vel);
     this.graphics.position = this.pos;
+  }
+  Update2(){
+    //this.graphics.position = this.pos;
   }
 }
