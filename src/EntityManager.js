@@ -6,7 +6,10 @@ import Wall from './wall.js';
 export default class EntityManager{
   static Init(){
     this.list = [];
-    this.particleList = [];
+    this.pList = [];
+    this.wList = [];
+    this.oList = [];
+    this.iList = [];
     //初期配置を設定
     this.Setting();
   }
@@ -49,7 +52,12 @@ export default class EntityManager{
   static Add(entity){
     this.list.push(entity); 
     if(entity.type == "particle"){
-      this.particleList.push(entity);
+      this.pList.push(entity);
+    }
+    if(entity.type == "wall"){
+      this.wList.push(entity);
+      if(entity.side == "inner")this.iList.push(entity);
+      if(entity.side == "inner")this.oList.push(entity);
     }
     Drawer.Add(entity.graphics);
   }

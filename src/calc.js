@@ -2,7 +2,7 @@ import EntityManager from './entityManager.js';
 
 export default class Calc{
   static Init(){
-    let list = EntityManager.particleList;
+    let list = EntityManager.pList;
     //係数行列
     this.A = new Array(env.length);
     for(let i=0;i<env.length;i++){
@@ -33,7 +33,7 @@ export default class Calc{
   //粒子pの粒子数密度を求める
   static CalcN(p){
     let n = 0;
-    for(let q of EntityManager.particleList){
+    for(let q of EntityManager.pList){
       if(p==q)continue;
       n += this.Weight(DIST(p.pos,q.pos));
     }
@@ -44,11 +44,11 @@ export default class Calc{
   static CalcLambda(p){
     let lambda = 0;
     let n = 0;
-    for(let q of EntityManager.particleList){
+    for(let q of EntityManager.pList){
       if(p==q)continue;
       lambda += DIST2(p.pos,q.pos)*this.Weight(DIST(p.pos,q.pos));
     }
-    for(let q of EntityManager.particleList){
+    for(let q of EntityManager.pList){
       if(p==q)continue;
       n += this.Weight(DIST(p.pos,q.pos));
     }
@@ -58,7 +58,7 @@ export default class Calc{
   //勾配モデル
   static Grad(p,phi){
     let gradPhi = VEC0();
-    for(let q of EntityManager.particleList){
+    for(let q of EntityManager.pList){
       if(p==q)continue;
       let length = DIST(p.pos,q.pos);
       let dist = SUBV(q.pos,p.pos);
@@ -73,7 +73,7 @@ export default class Calc{
   //u : vec2
   static Div(p,u){
     let divPhi = VEC0();
-    for(let q of EntityManager.particleList){
+    for(let q of EntityManager.pList){
       if(p==q)continue;
       let length = DIST(p.pos,q.pos);
       let dist = SUBV(q.pos,p.pos);
@@ -89,7 +89,7 @@ export default class Calc{
   //phi ... 物理量(str)
   static Lap(p,phi){
     let lapPhi = 0;
-    for(let q of EntityManager.particleList){
+    for(let q of EntityManager.pList){
       if(p==q)continue;
       let length = DIST(q.pos,p.pos);
       lapPhi += (q[phi]-p[phi])*this.Weight(length);
@@ -99,7 +99,7 @@ export default class Calc{
   }
   //
   static CalcPressure(){
-    let list = EntityManager.particleList;
+    let list = EntityManager.pList;
     let sum = 0;//重み関数の総和
 
     for(let y=0;y<list.length;y++){
@@ -117,7 +117,7 @@ export default class Calc{
     for(let i=0;i<list.length;i++){
       this.b[i] = env.poyo/(5/list[i].n-1);
     }
-    if(env.timer ==13)cl(env)
+    if(env.timer ==12)cl(env)
     //解いて圧力を更新
     let ps = this.GaussSeidel(this.A,this.b);
     list.forEach((e,i)=>{e.prs=ps[i]})
