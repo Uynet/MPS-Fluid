@@ -43,11 +43,16 @@ export default class Calc{
   //最初に一回使うだけ
   static CalcLambda(p){
     let lambda = 0;
+    let n = 0;
     for(let q of EntityManager.particleList){
       if(p==q)continue;
       lambda += DIST2(p.pos,q.pos)*this.Weight(DIST(p.pos,q.pos));
     }
-    lambda/p.n;
+    for(let q of EntityManager.particleList){
+      if(p==q)continue;
+      n += this.Weight(DIST(p.pos,q.pos));
+    }
+    lambda/=n;
     return lambda;
   }
   //勾配モデル
@@ -112,11 +117,10 @@ export default class Calc{
     for(let i=0;i<list.length;i++){
       this.b[i] = env.poyo/(5/list[i].n-1);
     }
+    if(env.timer ==13)cl(env)
     //解いて圧力を更新
     let ps = this.GaussSeidel(this.A,this.b);
-    list.forEach((e,i)=>{
-      e.prs=ps[i];
-    })
+    list.forEach((e,i)=>{e.prs=ps[i]})
   }
   //Ax=bを満たすxの近似解
   //A:係数行列
@@ -137,10 +141,15 @@ export default class Calc{
         }
         else{
           next/= A[i][i];
-          x[i]=next/1000000;
+          x[i]=next;
         }
       }
     }
+    if(env.timer==0){
+      cl(A);
+      cl(b);
+      cl(x);
+      }
     return x;
   }
 }

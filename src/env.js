@@ -1,11 +1,17 @@
 const cl = console.log;
+const et = (t,p)=>{
+  if(env.timer==t){
+    cl(p);
+  }
+}
+
 
 const env = {
-  g : 0.1,//重力
+  g : 100,//重力
   timer : 0,
   dt : 1/200,//時間の刻み幅
   nu : 0, //粘性係数 ν
-  rho : 1, //密度 ρ　
+  rho : 1000, //密度 ρ　
   re : 32, //影響半径 粒子の約二倍
   lambda : 0,//ラプラシアンモデルの係数
   poyo : 0,

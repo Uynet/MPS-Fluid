@@ -39,6 +39,13 @@ export default class Particle{
   SetColor(r,g,b){
     this.graphics.graphicsData[0].fillColor = r*65536 + g*256 + b;
   }
+  Restrict(){
+    if(LENGTH2(this.vel)>10000){
+      this.vel = NOMALIZE(this.vel);
+      this.vel.x *= 100;
+      this.vel.y *= 100;
+    }
+  }
   Update(){
     //NS方程式
     /* Du/Dt = -1/ρ∇P + ν△u + g */
@@ -61,24 +68,15 @@ export default class Particle{
       this.prs = 0;
     }
   }
-  Restrict(){
-    if(LENGTH2(this.vel)>10000){
-      this.vel = NOMALIZE(this.vel);
-      this.vel.x *= 100;
-      this.vel.y *= 100;
-    }
-  }
   Update2(){
     let gradP = VEC0();
-    if(this.prs){
-      gradP = Calc.Grad(this,"prs");
-    }
+    if(this.prs)gradP = Calc.Grad(this,"prs");
 
-    this.vel.x = this.vel_star.x - gradP.x;
-    this.vel.y = this.vel_star.y - gradP.y;
+    //this.vel.x = this.vel_star.x - env.dt * gradP.x/env.rho;
+    //this.vel.y = this.vel_star.y - env.dt * gradP.y/env.rho;
     //this.Restrict()  //速度制限
-    this.pos.x = this.pos_star.x + env.dt * this.vel.x;
-    this.pos.y = this.pos_star.y + env.dt * this.vel.y;
+    this.pos.x = this.pos_star.x - env.dt * env.dt * gradP.x/env.rho;
+    this.pos.y = this.pos_star.y - env.dt * env.dt * gradP.y/env.rho;
 
     let po = Math.floor(this.prs*1);
     this.SetColor(64,64,255);
