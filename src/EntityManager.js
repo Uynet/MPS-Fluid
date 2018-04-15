@@ -13,11 +13,11 @@ export default class EntityManager{
   static Setting(){
     let p;
     //水柱の初期配置
-    for(let i=0;i<10;i++){
-      for(let j=0;j<1;j++){
+    for(let i=0;i<8;i++){
+      for(let j=0;j<8;j++){
         p = {
-          x : 64 + i*16,
-          y : 128 + j*16,
+          x : 144 + i*16,
+          y : 144 + j*16,
         }
         let pa = new Particle(p);
         EntityManager.Add(pa);

@@ -1,4 +1,5 @@
 import EntityManager from './entityManager.js';
+import Input from './input.js';
 import Calc from './calc.js';
 
 
@@ -24,13 +25,15 @@ export default class Particle{
     this.SetColor(64,64,255);
   }
   Collision(){
+    //💩
     for(let l of EntityManager.list){
       if(l.type != "wall")continue;
       if(DIST(this.pos,l.pos) < 16){
         this.pos.x -= this.vel.x*2;
         this.pos.y -= this.vel.y*2;
-        this.vel.x = -0.9 * this.vel.x;
-        this.vel.y = -0.9 * this.vel.y;
+        this.vel.x*=-0.5;
+        this.vel.y*=-0.5;
+        
       }
     }
   }
@@ -44,26 +47,36 @@ export default class Particle{
     this.acc.x = this.frc.x;
     this.acc.y = this.frc.y;
     //粘性項と外力項から仮速度を計算
-    this.vel_star = ADV(this.vel,this.acc);
-    this.pos_star = ADV(this.pos,this.vel_star);
+    this.vel_star.x = this.vel.x + env.dt*this.acc.x;
+    this.vel_star.y = this.vel.y + env.dt*this.acc.y;
+    this.pos_star.x = this.pos.x + env.dt*this.vel_star.x;
+    this.pos_star.y = this.pos.y + env.dt*this.vel_star.y;
 
+    //仮位置に置ける粒子数密度を計算
     this.n = Calc.CalcN(this);
+    //圧力を0に
+    if(this.n<env.n0*0.95){
+      this.prs = 0;
+      this.SetColor(128,192,255);
+    }
   }
   Update2(){
     let gradP = VEC0();
-    if(this.n<env.n0*0.95)this.prs = 0;
     if(this.prs){
       gradP = Calc.Grad(this,"prs");
     }
 
-    this.vel = ADV(this.vel_star,gradP);
+    this.vel.x = this.vel_star.x + gradP.x;
+    this.vel.y = this.vel_star.y + gradP.y;
+    if(Input.isKeyClick(74))cl(this.prs);
     //速度制限
-    if(LENGTH2(this.vel)>16){
+    if(LENGTH2(this.vel)>10000){
       this.vel = NOMALIZE(this.vel);
-      this.vel.x *= 4;
-      this.vel.y *= 4;
+      this.vel.x *= 100
+      this.vel.y *= 100;
     }
-    this.pos = ADV(this.pos_star,this.vel);
+    this.pos.x = this.pos_star.x + env.dt * this.vel.x;
+    this.pos.y = this.pos_star.y + env.dt * this.vel.y;
 
     this.graphics.position = this.pos;
   }

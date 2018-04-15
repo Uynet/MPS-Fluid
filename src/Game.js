@@ -2,6 +2,7 @@ import Drawer from './drawer.js';
 import EntityManager from './entityManager.js';
 import Particle from './particle.js';
 import Calc from './calc.js';
+import Input from './input.js';
 
 let state = 0;
 export default class Game{

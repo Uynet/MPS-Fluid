@@ -98,7 +98,9 @@ export default class Calc{
     for(let i=0;i<list.length;i++){
       this.b[i] = env.poyo*(env.n0/list[i].n-1);
     }
-
+    if(env.timer == 0){
+      cl(this.A)
+    }
     //解く
     let ps = this.GaussSeidel(this.A,this.b);
 
@@ -125,7 +127,7 @@ export default class Calc{
           
         else{
           next/= A[i][i];
-          x[i]=next/1000;
+          x[i]=next;
         }
       }
     }
