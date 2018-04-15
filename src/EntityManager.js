@@ -25,33 +25,23 @@ export default class EntityManager{
       }
     }
     //壁の初期配置
-    for(let j=0;j<24;j++){
-      for(let i=0;i<24;i++){
-        if(j>=2 && j<=21 && i>=2 && i<=21)continue;
-        p = {
-          x : 8 +  i*16,
-          y : 8 + j*16,
+    for(let k=0;k<3;k++){
+      for(let j=0;j<24;j++){
+        for(let i=0;i<24;i++){
+          if(j==k || j==23-k || i==k || i==23-k){
+            if(j<k||j>23-k||i<k||i>23-k)continue;
+            p = {
+              x : 8 +  i*16,
+              y : 8 + j*16,
+            }
+            let wa;
+            if(k==2)wa = new Wall(p,"outter");
+            else wa = new Wall(p,"inner");
+            EntityManager.Add(wa);
+          }
         }
-        let wa = new Wall(p);
-        EntityManager.Add(wa);
       }
     }
-    //各粒子の粒子数密度とその最大値を求める
-    let ns = [];//粒子数密度の配列
-    for(let p of this.particleList){
-      p.n = Calc.CalcN(p);
-      ns.push(p.n);
-    }
-    env.n0 = ns.reduce((a,c)=>(a>c)?a:c);
-    //各粒子のλとその最大値を求める
-    let ls = [];//λの配列
-    for(let p of this.particleList){
-      ls.push(Calc.CalcN(p));
-    }
-    env.lambda = ls.reduce((a,c)=>(a>c)?a:c);
-
-    //poyoの計算
-    env.poyo = env.lambda*env.rho/(env.dt*env.dt/4);
   }
 
 
