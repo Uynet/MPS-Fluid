@@ -2,12 +2,26 @@ import EntityManager from './entityManager.js';
 
 export default class Calc{
   static Init(){
+    let list = EntityManager.particleList;
     //係数行列
     this.A = new Array(env.length);
     for(let i=0;i<env.length;i++){
       this.A[i] = new Array(env.length).fill(0);
     }
     this.b = new Array(env.length).fill(0);
+
+    //各粒子の粒子数密度とその最大値を求める
+    let ns = [];//粒子数密度の配列
+    list.forEach((e,i,a)=>{ns.push(e.n = Calc.CalcN(e)); });
+    env.n0 = ns.reduce((a,c)=>(a>c)?a:c);
+
+    //各粒子のλとその最大値を求める
+    let ls = [];//λの配列
+    list.forEach((e,i,a)=>{ls.push(e.n = Calc.CalcLambda(e));});
+    env.lambda = ls.reduce((a,c)=>(a>c)?a:c);
+
+    //poyoの計算
+    env.poyo = (env.lambda*env.n0/4)*(env.rho/(env.dt*env.dt));
   }
   static Weight(r){
     if(r==0){
@@ -89,30 +103,25 @@ export default class Calc{
         if(y == x)continue;
         let po = this.Weight(DIST(list[y].pos,list[x].pos));
         sum += po;
-        this.A[y][x] = -po;
-        this.A[x][y] = -po;
+        this.A[y][x] = po;
+        this.A[x][y] = po;
       }
       //対角成分
-      this.A[y][y] = sum;
+      this.A[y][y] = -sum;
     }
     for(let i=0;i<list.length;i++){
-      this.b[i] = env.poyo*(env.n0/list[i].n-1);
+      this.b[i] = env.poyo/(5/list[i].n-1);
     }
-    if(env.timer == 0){
-      cl(this.A)
-    }
-    //解く
+    //解いて圧力を更新
     let ps = this.GaussSeidel(this.A,this.b);
-
-    //圧力を更新
-    for(let i=0;i<list.length;i++){
-      list[i].prs = ps[i];
-      let po = 64+(ps[i]*0.000001);
-      list[i].SetColor(64,64,255);
-      if(ps[i]==0)list[i].SetColor(128,192,192);
-    }
+    list.forEach((e,i)=>{
+      e.prs=ps[i];
+    })
   }
   //Ax=bを満たすxの近似解
+  //A:係数行列
+  //b:
+  //x:圧力の解
   static GaussSeidel(A,b){
     let length = env.length;
     let x = new Array(length).fill(0);
@@ -123,11 +132,12 @@ export default class Calc{
           if(i==j)continue;
           next -= A[i][j]*x[j];
         }
-        if(A[i][i]==0)x[i]=0;
-          
+        if(A[i][i]==0){
+          x[i]=0;
+        }
         else{
           next/= A[i][i];
-          x[i]=next;
+          x[i]=next/1000000;
         }
       }
     }

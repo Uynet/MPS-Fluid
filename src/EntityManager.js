@@ -24,7 +24,18 @@ export default class EntityManager{
         env.length++;
       }
     }
-
+    //壁の初期配置
+    for(let j=0;j<24;j++){
+      for(let i=0;i<24;i++){
+        if(j>=2 && j<=21 && i>=2 && i<=21)continue;
+        p = {
+          x : 8 +  i*16,
+          y : 8 + j*16,
+        }
+        let wa = new Wall(p);
+        EntityManager.Add(wa);
+      }
+    }
     //各粒子の粒子数密度とその最大値を求める
     let ns = [];//粒子数密度の配列
     for(let p of this.particleList){
@@ -39,19 +50,8 @@ export default class EntityManager{
     }
     env.lambda = ls.reduce((a,c)=>(a>c)?a:c);
 
+    //poyoの計算
     env.poyo = env.lambda*env.rho/(env.dt*env.dt/4);
-    //壁の初期配置
-    for(let j=0;j<24;j++){
-      for(let i=0;i<24;i++){
-        if(j>=2 && j<=21 && i>=2 && i<=21)continue;
-        p = {
-          x : 8 +  i*16,
-          y : 8 + j*16,
-        }
-        let wa = new Wall(p);
-        EntityManager.Add(wa);
-      }
-    }
   }
 
 
