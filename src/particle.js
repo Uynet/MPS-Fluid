@@ -27,9 +27,8 @@ export default class Particle{
     for(let l of EntityManager.list){
       if(l.type != "wall")continue;
       if(DIST(this.pos,l.pos) < 16){
-        this.pos.x -= this.vel.x;
-        this.pos.y -= this.vel.y;
-        this.vel.x += 2 * (Math.random()-0.5);
+        this.pos.x -= this.vel.x*2;
+        this.pos.y -= this.vel.y*2;
         this.vel.x = -0.9 * this.vel.x;
         this.vel.y = -0.9 * this.vel.y;
       }
@@ -48,10 +47,24 @@ export default class Particle{
     this.vel_star = ADV(this.vel,this.acc);
     this.pos_star = ADV(this.pos,this.vel_star);
 
+    this.n = Calc.CalcN(this);
   }
   Update2(){
-    this.vel = this.vel_star;
-    this.pos = this.pos_star;
+    let gradP = VEC0();
+    if(this.n<env.n0*0.95)this.prs = 0;
+    if(this.prs){
+      gradP = Calc.Grad(this,"prs");
+    }
+
+    this.vel = ADV(this.vel_star,gradP);
+    //速度制限
+    if(LENGTH2(this.vel)>16){
+      this.vel = NOMALIZE(this.vel);
+      this.vel.x *= 4;
+      this.vel.y *= 4;
+    }
+    this.pos = ADV(this.pos_star,this.vel);
+
     this.graphics.position = this.pos;
   }
 }

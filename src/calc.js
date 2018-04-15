@@ -3,16 +3,17 @@ import EntityManager from './entityManager.js';
 export default class Calc{
   static Init(){
     //係数行列
-    this.A = new Array(40);
-    for(let i=0;i<40;i++){
-      this.A[i] = new Array(40).fill(0);
+    this.A = new Array(env.length);
+    for(let i=0;i<env.length;i++){
+      this.A[i] = new Array(env.length).fill(0);
     }
-    this.b = [];
-    for(let i = 0;i<40;i++){
-      this.b.push(i);
-    }
+    this.b = new Array(env.length).fill(0);
   }
   static Weight(r){
+    if(r==0){
+      cl("unko");
+      return 114514;
+    }
     return Math.max(0,env.re/r - 1);
   }
   //粒子pの粒子数密度を求める
@@ -42,8 +43,8 @@ export default class Calc{
       if(p==q)continue;
       let length = DIST(p.pos,q.pos);
       let dist = SUBV(q.pos,p.pos);
-      gradPhi.x += ((q[phi]-p[phi])*dist.x*this.Weight(DIST(length)))/(length*length);
-      gradPhi.y += ((q[phi]-p[phi])*dist.y*this.Weight(DIST(length)))/(length*length);
+      gradPhi.x += ((q[phi]-p[phi])*dist.x*this.Weight(length))/(length*length);
+      gradPhi.y += ((q[phi]-p[phi])*dist.y*this.Weight(length))/(length*length);
     }
     gradPhi.x *= 2/env.n0;
     gradPhi.y *= 2/env.n0;
@@ -81,6 +82,7 @@ export default class Calc{
   static CalcPressure(){
     let list = EntityManager.particleList;
     let sum = 0;//重み関数の総和
+
     for(let y=0;y<list.length;y++){
       sum = 0;
       for(let x=0;x<list.length;x++){
@@ -93,10 +95,24 @@ export default class Calc{
       //対角成分
       this.A[y][y] = sum;
     }
+    for(let i=0;i<list.length;i++){
+      this.b[i] = env.poyo*(env.n0/list[i].n-1);
+    }
+
+    //解く
+    let ps = this.GaussSeidel(this.A,this.b);
+
+    //圧力を更新
+    for(let i=0;i<list.length;i++){
+      list[i].prs = ps[i];
+      let po = 64+(ps[i]*0.000001);
+      list[i].SetColor(64,64,255);
+      if(ps[i]==0)list[i].SetColor(128,192,192);
+    }
   }
   //Ax=bを満たすxの近似解
   static GaussSeidel(A,b){
-    let length = 3;
+    let length = env.length;
     let x = new Array(length).fill(0);
     for(let po = 0;po<6;po++){
       for(let i = 0;i<length;i++){
@@ -105,8 +121,12 @@ export default class Calc{
           if(i==j)continue;
           next -= A[i][j]*x[j];
         }
-        next/= A[i][i];
-        x[i]=next;
+        if(A[i][i]==0)x[i]=0;
+          
+        else{
+          next/= A[i][i];
+          x[i]=next/1000;
+        }
       }
     }
     return x;

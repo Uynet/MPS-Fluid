@@ -2,11 +2,14 @@ const cl = console.log;
 
 const env = {
   timer : 0,
-  g : 0.1,//重力
+  g : 0.05,//重力
   nu : 0, //圧力勾配係数 ν
   rho : 1, //密度 ρ　
   re : 32, //影響半径 粒子の約二倍
   lambda : 0,//ラプラシアンモデルの係数
+  dt : 0.05,//時間の刻み幅
+  poyo : 0,
+  length : 0,//粒子数
 }
 //vector
 const VEC0 = ()=>{
@@ -33,3 +36,7 @@ const DOT = (v1,v2)=>{
 const ADV = (v1,v2)=>{ return {x:v1.x + v2.x ,y:v1.y + v2.y}; }
 const SUBV = (v1,v2)=>{ return {x:v1.x - v2.x ,y:v1.y - v2.y}; }
 const VEC2 = (x1,y1)=>{ return { x : x1, y : y1, } }
+  const LENGTH2 = (v)=>{
+    return v.x*v.x+v.y*v.y;
+  }
+

@@ -13,16 +13,18 @@ export default class EntityManager{
   static Setting(){
     let p;
     //水柱の初期配置
-    for(let i=0;i<4;i++){
-      for(let j=0;j<10;j++){
+    for(let i=0;i<10;i++){
+      for(let j=0;j<1;j++){
         p = {
           x : 64 + i*16,
-          y : 64 + j*16,
+          y : 128 + j*16,
         }
         let pa = new Particle(p);
         EntityManager.Add(pa);
+        env.length++;
       }
     }
+
     //各粒子の粒子数密度とその最大値を求める
     let ns = [];//粒子数密度の配列
     for(let p of this.particleList){
@@ -37,16 +39,7 @@ export default class EntityManager{
     }
     env.lambda = ls.reduce((a,c)=>(a>c)?a:c);
 
-
-    let A = [
-      [3,2,1],
-      [1,4,1],
-      [2,2,5],
-    ];
-    let b = [10,12,21];
-
-    cl(Calc.GaussSeidel(A,b));
-
+    env.poyo = env.lambda*env.rho/(env.dt*env.dt/4);
     //壁の初期配置
     for(let j=0;j<24;j++){
       for(let i=0;i<24;i++){
