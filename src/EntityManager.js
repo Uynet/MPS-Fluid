@@ -16,19 +16,18 @@ export default class EntityManager{
   static Setting(){
     let p;
     //水柱の初期配置
-    for(let i=0;i<8;i++){
-      for(let j=0;j<8;j++){
+    for(let i=0;i<5;i++){
+      for(let j=0;j<5;j++){
         p = {
           x : 144 + i*16,
           y : 144 + j*16,
         }
         let pa = new Particle(p);
         EntityManager.Add(pa);
-        env.length++;
       }
     }
     //壁の初期配置
-    for(let k=0;k<3;k++){
+    for(let k=3;k<3;k++){
       for(let j=0;j<24;j++){
         for(let i=0;i<24;i++){
           if(j==k || j==23-k || i==k || i==23-k){
@@ -53,20 +52,19 @@ export default class EntityManager{
     this.list.push(entity); 
     if(entity.type == "particle"){
       this.pList.push(entity);
+      env.length++;
     }
     if(entity.type == "wall"){
       this.wList.push(entity);
       if(entity.side == "inner")this.iList.push(entity);
-      if(entity.side == "inner")this.oList.push(entity);
+      if(entity.side == "outter"){
+        this.oList.push(entity);
+        env.length++;
+      }
     }
-    Drawer.Add(entity.graphics);
+  //  Drawer.Add(entity.graphics);
   }
   //Entityをリストから削除
-  static Remove(entity){
-    let i = this.list.indexOf(entity);
-    this.list.splise(i);
-    Drawer.Remove(entity.graphics);
-  }
   static Update(){
     for(let l of this.list){
       l.Update();

@@ -7,11 +7,12 @@ import Input from './input.js';
 let state = 0;
 export default class Game{
   static Boot(){
-    Drawer.Init();
-    EntityManager.Init();
-    Calc.Init();
-    state = 0;
-    Game.Run();
+    Drawer.Init().then(()=>{
+      EntityManager.Init();
+      Calc.Init();
+      state = 0;
+      Game.Run();
+    });
   }
 
   static Update(){
@@ -21,13 +22,17 @@ export default class Game{
   }
 
   static Run(){
-    requestAnimationFrame(Game.Run);
-    //document.onclick = (e)=>{state = 1;}
-    //if(state == 1)
+    //requestAnimationFrame(Game.Run);
     Game.Update();
     /*描画*/
-    Drawer.Renderer.render(Drawer.Stage);
+    Drawer.Render(EntityManager.list);
     env.timer++;
   }
 }
 
+  document.onkeydown=function(e){
+    Game.Run();
+    if(e.keyCode==88){
+      cl(Calc.A)
+    }
+  }

@@ -24,26 +24,14 @@ export default class Particle{
     this.graphics.drawRect(0,0,15,15);//x,y,width,height
     this.SetColor(64,64,255);
   }
-  Collision(){
-    //💩
-    for(let l of EntityManager.list){
-      if(l.type != "wall")continue;
-      if(DIST(this.pos,l.pos) < 16){
-        this.pos.x -= this.vel.x;
-        this.pos.y -= this.vel.y;
-        this.vel.x*=-0.5;
-        this.vel.y*=-0.5;
-      }
-    }
-  }
   SetColor(r,g,b){
     this.graphics.graphicsData[0].fillColor = r*65536 + g*256 + b;
   }
-  Restrict(){
-    if(LENGTH2(this.vel)>10000){
+  Restrict(vec){
+    if(LENGTH2(this.vel)>40000){
       this.vel = NOMALIZE(this.vel);
-      this.vel.x *= 100;
-      this.vel.y *= 100;
+      this.vel.x *= 1600
+      this.vel.y *= 1600
     }
   }
   Update(){
@@ -53,6 +41,13 @@ export default class Particle{
     //重力項
     //this.acc.x = 0;
     this.acc.y = env.g;
+
+    //粘性項
+    let lapV = Calc.LapV(this,"vel");
+    lapV.x*=env.nu;
+    lapV.y*=env.nu;
+    this.acc.x += lapV.x;
+    this.acc.y += lapV.y;
 
     //粘性項と外力項から仮速度を計算
     this.vel_star.x = this.vel.x + env.dt*this.acc.x;
@@ -71,12 +66,11 @@ export default class Particle{
   Update2(){
     let gradP = VEC0();
     if(this.prs)gradP = Calc.Grad(this,"prs");
-
-    //this.vel.x = this.vel_star.x - env.dt * gradP.x/env.rho;
-    //this.vel.y = this.vel_star.y - env.dt * gradP.y/env.rho;
-    //this.Restrict()  //速度制限
-    this.pos.x = this.pos_star.x - env.dt * env.dt * gradP.x/env.rho;
-    this.pos.y = this.pos_star.y - env.dt * env.dt * gradP.y/env.rho;
+    this.vel.x = this.vel_star.x - env.dt * gradP.x/env.rho;
+    this.vel.y = this.vel_star.y - env.dt * gradP.y/env.rho;
+    //this.Restrict(this.vel)  //速度制限
+    this.pos.x = this.pos_star.x - env.dt*env.dt * gradP.x/env.rho;
+    this.pos.y = this.pos_star.y - env.dt*env.dt * gradP.x/env.rho;
 
     let po = Math.floor(this.prs*1);
     this.SetColor(64,64,255);
