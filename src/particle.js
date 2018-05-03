@@ -19,32 +19,23 @@ export default class Particle{
       
     this.type = "particle";
 
-    this.graphics = new PIXI.Graphics();
-    this.graphics.beginFill(0x000000,0.6);
-    this.graphics.drawRect(0,0,15,15);//x,y,width,height
-    this.SetColor(64,64,255);
-  }
-  SetColor(r,g,b){
-    this.graphics.graphicsData[0].fillColor = r*65536 + g*256 + b;
   }
   Restrict(vec){
-    if(LENGTH2(this.vel)>49){
+    if(LENGTH2(this.vel)>64){
       this.vel = NOMALIZE(this.vel);
-      this.vel.x *= 7
-      this.vel.y *= 7
+      this.vel.x *= 8
+      this.vel.y *= 8
     }
   }
   Update(){
     //重力項
     this.acc.y = env.g;
     //粘性項
-    /*
     let lapV = Calc.LapV(this,"vel");
     lapV.x*=env.nu;
     lapV.y*=env.nu;
     this.acc.x += lapV.x;
     this.acc.y += lapV.y;
-    */
     //粘性項と外力項から仮速度を計算
     this.vel_star.x = this.vel.x + env.dt*this.acc.x;
     this.vel_star.y = this.vel.y + env.dt*this.acc.y;
@@ -60,21 +51,19 @@ export default class Particle{
     let list = EntityManager.list.filter(p=>p!=this);
     this.weights = list.map(p => {return {p:p,w:Calc.Weight(DIST(this.pos,p.pos))};});
     this.a=Calc.Sigma(this.weights.map(p=>p.w));
-    this.c=-env.rho*(this.n-env.n0)*env.lambda*env.n0/(env.dt*env.dt*env.n0*2*2);
+    this.c=-env.alpha*env.rho*(this.n-env.n0)*env.lambda*env.n0/(env.dt*env.dt*env.n0*2*2);
   }
   SolvePressure(){
     const b = Calc.Sigma(this.weights.map(w => w.p.prs * w.w));
-    this.prs = Math.min(5, (b - this.c) / this.a);
+    this.prs = (b - this.c) / this.a;
   };
   Update2(){
     let gradP = VEC0();
     if(this.prs != 0)gradP = Calc.Grad(this,"prs");
     this.vel.x = this.vel_star.x - env.dt*gradP.x/env.rho;
     this.vel.y = this.vel_star.y - env.dt*gradP.y/env.rho;
-//    this.Restrict(this.vel)  //速度制限
+    this.Restrict(this.vel)  //速度制限
     this.pos.x = this.pos_star.x + env.dt*(this.vel_star.x-this.vel.x);
     this.pos.y = this.pos_star.y + env.dt*(this.vel_star.y-this.vel.y);
-    this.SetColor(64,64,255);
-
   }
 }

@@ -26,6 +26,9 @@ export default class Drawer{
       }).then(fs=>{
         this.gl.attachShader(program,fs);
         this.gl.linkProgram(program);
+        if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
+          console.log(this.gl.getProgramInfoLog(program))
+        }
         this.gl.useProgram(program);
 
         let attributeLocation = this.gl.getAttribLocation(program,"position");
@@ -45,6 +48,10 @@ export default class Drawer{
     entities.forEach((e,i)=>{
       let location = this.gl.getUniformLocation(this.program,"entities["+i+"]");
       this.gl.uniform2f(location,64+entities[i].pos.x,400-entities[i].pos.y);
+      let location2 = this.gl.getUniformLocation(this.program,"prses["+i+"]");
+      this.gl.uniform1f(location2,entities[i].prs);
+      let location3 = this.gl.getUniformLocation(this.program,"isSurfaces["+i+"]");
+      this.gl.uniform1f(location3,(entities[i].isSurface&&entities[i].type=="particle"));
     })
     this.gl.drawArrays(this.gl.TRIANGLES,0,3);
     this.gl.drawArrays(this.gl.TRIANGLES,3,3);
@@ -56,10 +63,8 @@ export default class Drawer{
       let ext = path.split(".")[1];
       let shader;
       switch(ext){
-        case "frag" : shader = this.gl.createShader(this.gl.FRAGMENT_SHADER);
-          break;  
-        case "vert" : shader = this.gl.createShader(this.gl.VERTEX_SHADER);
-          break;  
+        case "frag" : shader = this.gl.createShader(this.gl.FRAGMENT_SHADER); break;  
+        case "vert" : shader = this.gl.createShader(this.gl.VERTEX_SHADER); break;  
       }
       let xhr = new XMLHttpRequest();
       xhr.open("GET",path,true);

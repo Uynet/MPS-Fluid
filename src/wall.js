@@ -30,8 +30,20 @@ export default class Wall{
   Update(){
     //仮位置に置ける粒子数密度を計算
     this.n = Calc.CalcN(this);
+    //自由表面判定
+    this.isSurface = this.n<env.n0*0.94;
+    if(this.isSurface)this.prs = 0;
   }
+  InitSolvePressure(){
+    let list = EntityManager.list.filter(p=>p!=this);
+    this.weights = list.map(p => {return {p:p,w:Calc.Weight(DIST(this.pos,p.pos))};});
+    this.a=Calc.Sigma(this.weights.map(p=>p.w));
+    this.c=-env.alpha*env.rho*(this.n-env.n0)*env.lambda*env.n0/(env.dt*env.dt*env.n0*2*2);
+  }
+  SolvePressure(){
+    const b = Calc.Sigma(this.weights.map(w => w.p.prs * w.w));
+    this.prs = (b - this.c) / this.a;
+  };
   Update2(){
-    this.graphics.position = this.pos;
   }
 }

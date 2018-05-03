@@ -3,12 +3,6 @@ import EntityManager from './entityManager.js';
 export default class Calc{
   static Init(){
     let list = EntityManager.pList;
-    //係数行列
-    this.A = new Array(env.length);
-    for(let i=0;i<env.length;i++){
-      this.A[i] = new Array(env.length).fill(0);
-    }
-    this.b = new Array(env.length).fill(0);
 
     //各粒子の粒子数密度とその最大値を求める
     let ns = [];//粒子数密度の配列
@@ -61,9 +55,9 @@ export default class Calc{
   //勾配モデル
   static Grad(p,phi){
     let gradPhi = VEC0();
-    let pList = EntityManager.list;
-    let pMin = EntityManager.pList.reduce((a,c)=>(a.prs<c.prs)?a.prs:c.prs);//圧力の最小値
-    for(let q of pList){
+    let list = EntityManager.pList.concat(EntityManager.oList);
+    let pMin = EntityManager.list.reduce((a,c)=>(a.prs<c.prs)?a.prs:c.prs);//圧力の最小値
+    for(let q of list){
       if(p==q)continue;
       let length = DIST(p.pos,q.pos);
       let dist = SUBV(q.pos,p.pos);
@@ -119,7 +113,7 @@ export default class Calc{
 
   //解いて圧力を更新
   static CalcPressure(){
-    const list = EntityManager.pList.concat(EntityManager.iList).filter(p => !p.isSurface);
+    const list = EntityManager.pList.concat(EntityManager.wList).filter(p => !p.isSurface);
     list.forEach(p=>p.InitSolvePressure());
     for (let i = 0; i < 10; i++) {
       list.forEach(p => p.SolvePressure());

@@ -5,11 +5,11 @@ import Wall from './wall.js';
 
 export default class EntityManager{
   static Init(){
-    this.list = [];
-    this.pList = [];
-    this.wList = [];
-    this.oList = [];
-    this.iList = [];
+    this.list = [];//all
+    this.pList = [];//water
+    this.wList = [];//all wall
+    this.oList = [];//outer wall
+    this.iList = [];//inner wall
     //初期配置を設定
     this.Setting();
   }
@@ -27,7 +27,7 @@ export default class EntityManager{
       }
     }
     //壁の初期配置
-    for(let k=2;k<3;k++){
+    for(let k=1;k<3;k++){
       for(let j=0;j<24;j++){
         for(let i=0;i<24;i++){
           if(j==k || j==23-k || i==k || i==23-k){
