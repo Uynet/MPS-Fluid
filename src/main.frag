@@ -1,12 +1,12 @@
 precision mediump float;
 uniform int size;
-uniform vec2 entities[300];
+uniform vec2 entities[330];
 uniform float prses[300];
 uniform float isSurfaces[300];
 
 float meta(float r){
   //return 0.4/(r*r+0.1);
-  if(r<8.0)return 500000.0;
+  if(r<8.0)return 2.0;
   return 0.0;
 }
 void main(){
@@ -23,14 +23,14 @@ void main(){
   vec3 light = vec3(0.0,0.0,0.5);
   float m = 0.0;
   float prs = 0.0;
-  for(int i = 0;i<512;i++){
+  for(int i = 0;i<312;i++){
     vec2 po = entities[i];
     float m0 = meta(length(p-po));
     m += m0;
     if(m>1.0){
       //自由表面
       if(isSurfaces[i]==1.){
-        gl_FragColor = vec4(1.,1.,1.,1.);
+        gl_FragColor = vec4(0.8,0.96,1.,1.);
         return;
       }
       gl_FragColor = vec4((prses[i]+5.) / 50., 0.4, 1.-prses[i]/50., 1.);
@@ -38,13 +38,10 @@ void main(){
       prs += prses[i]*1.0/50.0;
     }
     //法線計算
-    po.y -= 0.00001;
-    float m1 = meta(length(p-po));
-    normal.y = m1-m0;
   }
 
-  if(m > 0.020){
-    if(m <= 0.022){
+  if(m > 0.030){
+    if(m <= 0.032){
       gl_FragColor = vec4(0.0,0.2,0.6,1);
       return;
     }

@@ -20,7 +20,7 @@ export default class EntityManager{
       for(let j=0;j<12;j++){
         p = {
           x : 102 + i*12,
-          y : 180 + j*12,
+          y : 102 + j*12,
         }
         let pa = new Particle(p);
         EntityManager.Add(pa);
@@ -28,18 +28,17 @@ export default class EntityManager{
     }
     //壁の初期配置
     let size = 32;
-    let layer = 3
-    for(let k=0;k<layer;k++){
+    for(let k=0;k<3;k++){
       for(let j=0;j<size;j++){
         for(let i=0;i<size;i++){
           if(/*j==k ||*/ j==size-1-k || i==k || i==size-1-k){
             if(j<k||j>size-1-k||i<k||i>size-1-k)continue;
             p = {
-              x : 48 + i*10,
-              y : 48 + j*10,
+              x : 48 + i*8,
+              y : 48 + j*8,
             }
             let wa;
-            if(k==layer-1)wa = new Wall(p,"outter");
+            if(k==2)wa = new Wall(p,"outter");
             else
             wa = new Wall(p,"inner");
             EntityManager.Add(wa);

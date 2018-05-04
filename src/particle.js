@@ -21,10 +21,11 @@ export default class Particle{
 
   }
   Restrict(vec){
-    if(LENGTH2(this.vel)>64){
+    const po = 15;
+    if(LENGTH2(this.vel)>po*po){
       this.vel = NOMALIZE(this.vel);
-      this.vel.x *= 8
-      this.vel.y *= 8
+      this.vel.x *= po
+      this.vel.y *= po
     }
   }
   Update(){
@@ -44,26 +45,29 @@ export default class Particle{
     //仮位置に置ける粒子数密度を計算
     this.n = Calc.CalcN(this);
     //境界条件で圧力を0に
-    this.isSurface = this.n<env.n0*0.94;
+    this.isSurface = this.n<env.n0*env.surf;
     if(this.isSurface)this.prs = 0;
   }
   InitSolvePressure(){
-    let list = EntityManager.list.filter(p=>p!=this);
+    let unko = env.n0
+    let list = EntityManager.pList.concat(EntityManager.oList).filter(p=>p!=this);
     this.weights = list.map(p => {return {p:p,w:Calc.Weight(DIST(this.pos,p.pos))};});
     this.a=Calc.Sigma(this.weights.map(p=>p.w));
-    this.c=-env.alpha*env.rho*(this.n-env.n0)*env.lambda*env.n0/(env.dt*env.dt*env.n0*2*2);
+    this.c=-env.alpha*env.rho*(this.n-unko)*env.lambda*unko/(env.dt*env.dt*unko*2*2);
   }
   SolvePressure(){
     const b = Calc.Sigma(this.weights.map(w => w.p.prs * w.w));
     this.prs = (b - this.c) / this.a;
+    if(this.a==0)this.prs=0;
   };
   Update2(){
     let gradP = VEC0();
     if(this.prs != 0)gradP = Calc.Grad(this,"prs");
+    let po = 0.0002;
     this.vel.x = this.vel_star.x - env.dt*gradP.x/env.rho;
     this.vel.y = this.vel_star.y - env.dt*gradP.y/env.rho;
-    this.Restrict(this.vel)  //速度制限
-    this.pos.x = this.pos_star.x + env.dt*(this.vel_star.x-this.vel.x);
-    this.pos.y = this.pos_star.y + env.dt*(this.vel_star.y-this.vel.y);
+    //this.Restrict(this.vel)  //速度制限
+    this.pos.x = this.pos_star.x + env.dt*(this.vel_star.x-this.vel.x)*po;
+    this.pos.y = this.pos_star.y + env.dt*(this.vel_star.y-this.vel.y)*po;
   }
 }

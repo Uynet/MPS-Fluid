@@ -17,7 +17,7 @@ export default class Game{
 
   static Update(){
     EntityManager.Update();//粘性項・外力項の計算
-  Calc.CalcPressure();//非圧縮性を保つように圧力計算
+    Calc.CalcPressure();//非圧縮性を保つように圧力計算
     EntityManager.Update2();//圧力勾配項の計算
   }
 

@@ -6,7 +6,7 @@ export default class Calc{
 
     //各粒子の粒子数密度とその最大値を求める
     let ns = [];//粒子数密度の配列
-    list.forEach((e,i,a)=>{ns.push(e.n = Calc.CalcN(e)); });
+    list.forEach((e,i,a)=>{ns.push(e.n = Calc.CalcN(e));});
     env.n0 = ns.reduce((a,c)=>(a>c)?a:c);
 
     //各粒子のλとその最大値を求める
@@ -23,17 +23,18 @@ export default class Calc{
     return po;
   }
   static Weight(r){
-    if(r==0){
-      cl("po")
-      return 999999999;
-    }
+    if(r==0){cl("po")}
     return Math.max(0,env.re/r - 1);
   }
   //粒子pの粒子数密度を求める
   static CalcN(p){
     let n = 0;
     let list = EntityManager.list.filter(q=>q!=p);
-    list.forEach(q=>{n += this.Weight(DIST(p.pos,q.pos))});
+    let po = 0;
+    list.forEach(q=>{
+      po = this.Weight(DIST(p.pos,q.pos))
+      n += po;
+    });
     return n;
   }
   //各粒子のλを求める
@@ -55,14 +56,22 @@ export default class Calc{
   //勾配モデル
   static Grad(p,phi){
     let gradPhi = VEC0();
-    let list = EntityManager.pList.concat(EntityManager.oList);
-    let pMin = EntityManager.list.reduce((a,c)=>(a.prs<c.prs)?a.prs:c.prs);//圧力の最小値
+    let pList = EntityManager.pList.filter(q=>p!=q);
+    let oList = EntityManager.oList;
+    let list = pList.concat(oList);
+    list = list.filter(q=>DIST(p.pos,q.pos)<env.re);
+    let pMin = 0;
+    if(list.length>=2){
+      pMin = list.reduce((a,c)=>(a.prs<c.prs)?a.prs:c.prs);//圧力の最小値
+    }
     for(let q of list){
       if(p==q)continue;
       let length = DIST(p.pos,q.pos);
       let dist = SUBV(q.pos,p.pos);
-      gradPhi.x += ((q[phi]-pMin)*dist.x*this.Weight(length))/(length*length);
-      gradPhi.y += ((q[phi]-pMin)*dist.y*this.Weight(length))/(length*length);
+      let po = 1
+      if(q.side=="outer")po=1;
+      gradPhi.x += po*((q[phi]-pMin)*dist.x*this.Weight(length))/(length*length);
+      gradPhi.y += po*((q[phi]-pMin)*dist.y*this.Weight(length))/(length*length);
     }
     gradPhi.x *= 2/env.n0;
     gradPhi.y *= 2/env.n0;
@@ -111,9 +120,21 @@ export default class Calc{
     return lapPhi;
   }
 
+  static Shuffle(a){
+    let array = a;
+    for(let i=array.length-1;i>0;i--){
+      let r = Math.floor(Math.random() * (i + 1));
+      let tmp = array[i];
+      array[i] = array[r];
+      array[r] = tmp;
+    }
+    return array;
+  }
   //解いて圧力を更新
   static CalcPressure(){
-    const list = EntityManager.pList.concat(EntityManager.wList).filter(p => !p.isSurface);
+
+    let list = EntityManager.pList.concat(EntityManager.oList).filter(p => !p.isSurface);
+    list = this.Shuffle(list);
     list.forEach(p=>p.InitSolvePressure());
     for (let i = 0; i < 10; i++) {
       list.forEach(p => p.SolvePressure());

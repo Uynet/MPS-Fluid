@@ -17,12 +17,6 @@ export default class Wall{
     this.n;//粒子数密度
       
     this.type = "wall";
-
-    this.graphics = new PIXI.Graphics();
-    this.graphics.beginFill(0x000000,0.6);
-    this.graphics.drawRect(0,0,15,15);//x,y,width,height
-    this.SetColor(64,64,89);
-    if(this.side == "inner")this.graphics.alpha = 0.5;
   }
   SetColor(r,g,b){
     this.graphics.graphicsData[0].fillColor = r*65536 + g*256 + b;
@@ -31,11 +25,11 @@ export default class Wall{
     //仮位置に置ける粒子数密度を計算
     this.n = Calc.CalcN(this);
     //自由表面判定
-    this.isSurface = this.n<env.n0*0.94;
+    this.isSurface = this.n<env.n0*env.surf;
     if(this.isSurface)this.prs = 0;
   }
   InitSolvePressure(){
-    let list = EntityManager.list.filter(p=>p!=this);
+    let list = EntityManager.pList.concat(EntityManager.oList).filter(p=>p!=this);
     this.weights = list.map(p => {return {p:p,w:Calc.Weight(DIST(this.pos,p.pos))};});
     this.a=Calc.Sigma(this.weights.map(p=>p.w));
     this.c=-env.alpha*env.rho*(this.n-env.n0)*env.lambda*env.n0/(env.dt*env.dt*env.n0*2*2);
